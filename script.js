@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { text: 'Jesus is the way, the truth and the life.', category: 'Bible'},
     ]
     
-    function displayRandomQuote() {
+    function showRandomQuote() {
         const randomIndex = Math.floor(Math.random() * quotes.length);
         const quote = quotes[randomIndex];
         console.log(`Displaying quote: "${quote.text}" - ${quote.category}`);
@@ -31,10 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     
-    newQuoteButton.addEventListener('click', displayRandomQuote);
+    newQuoteButton.addEventListener('click', showRandomQuote);
     window.addQuote = addQuote;
    // Display a random quote initially
-  displayRandomQuote();
+  showRandomQuote();
 });
 
 
