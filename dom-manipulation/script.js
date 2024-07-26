@@ -16,13 +16,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createAddQuoteForm() {
         const addQuoteForm = document.getElementById('addQuoteForm');
-        addQuoteForm.innerHTML = `
-        <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
-        <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-        <button id="addQuoteButton">Add Quote</button>
-    `;
-    document.getElementById('addQuoteButton').addEventListener('click', addQuote);
+
+        // Create elements
+        const newQuoteText = document.createElement('input');
+        newQuoteText.id = 'newQuoteText';
+        newQuoteText.type = 'text';
+        newQuoteText.placeholder = 'Enter a new quote';
+
+        const newQuoteCategory = document.createElement('input');
+        newQuoteCategory.id = 'newQuoteCategory';
+        newQuoteCategory.type = 'text';
+        newQuoteCategory.placeholder = 'Enter quote category';
+
+        const addQuoteButton = document.createElement('button');
+        addQuoteButton.id = 'addQuoteButton';
+        addQuoteButton.textContent = 'Add Quote';
+
+        // Append elements to form
+        addQuoteForm.appendChild(newQuoteText);
+        addQuoteForm.appendChild(newQuoteCategory);
+        addQuoteForm.appendChild(addQuoteButton);
+
+        // Add event listener
+        document.getElementById('addQuoteButton').addEventListener('click', addQuote);
     }
+
+
 
     function addQuote() {
         const newQuoteText = document.getElementById('newQuoteText').value.trim();
