@@ -67,7 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function exportJson() {
         const dataStr = JSON.stringify(quotes);
-        const dataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        const blob = new Blob([dataStr], { type: 'application/json'});        const dataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        const url = URL.createObjectURL(blob);
 
         const exportFileDefaultName = 'quotes.json';
 
