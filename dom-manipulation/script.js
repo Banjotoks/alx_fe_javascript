@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Initial quotes:, quotes');
     console.log('Initial categories:', categories);
 
-    function populateCategoryFilter() {
+    function populateCategories() {
         categoryFilter.innerHTML = '<option value= "all">All Categories</option>';
         categories.forEach(category => {
             const option = document.createElement('option');
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('newQuoteCategory').value = '';
             alert('New quote added successfully!');
             if (!categories.includes(newQuoteCategory)) {
-                populateCategoryFilter();
+                populateCategories();
             }
         } else {
             console.log('Failed to add quote: Missing text or category');
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
           saveQuotes();
           alert('Quotes imported successfully!');
           categories = [...new Set(quotes.map(quote => quote.category))];
-          populateCategoryFilter();
+          populateCategories();
           filterQuotes();
         };
         fileReader.readAsText(event.target.files[0]);
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addQuote = addQuote;
 
     // Initialize the add quote form
-    populateCategoryFilter();
+    populateCategories();
     filterQuotes();
 
 
