@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => console.error('Error syncing with server:',error));
       }
 
-      function fetchFromServer() {
+      function fetchQuotesFromServer() {
         fetch('https://jsonplaceholder.typicode.com/posts')
         .then(response => response.json())
         .then(data => {
