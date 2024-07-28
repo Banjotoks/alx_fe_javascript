@@ -146,30 +146,31 @@ document.addEventListener('DOMContentLoaded', () => {
         fileReader.readAsText(event.target.files[0]);
       }
 
-      function syncWithServer() {
-        fetch('https://jsonplaceholder.typicode.com/posts', {
+      async function syncWithServer() {
+        try {
+    const response  = await fetch('https://jsonplaceholder.typicode.com/posts', {
             method: 'POST',
             body: JSON.stringify(quotes),
             headers: {
-                'content-Type': 'application/json'
+                'Content-Type': 'application/json'
             }
-        })
-        .then(response => response.json())
-        .then(data => {
+        });
+        const data = await response.json();
             console.log('Quotes synced with server:', data);
             notification.textContent = 'Quotes synced with server!';
             notification.style.display = 'block';
             setTimeout(() => {
                 notification.style.display = 'none';
             }, 3000);
-        })
-        .catch(error => console.error('Error syncing with server:',error));
+        } catch(error) {
+            console.error('Error syncing with server:',error);
+        }
       }
 
-      function fetchQuotesFromServer() {
-        fetch('https://jsonplaceholder.typicode.com/posts')
-        .then(response => response.json())
-        .then(data => {
+      async function fetchQuotesFromServer() {
+        try{
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts')
+        const data = await response.json();
             console.log('Fetched quotes from server:', data);
             const serverQuotes = data.map(item => item.body).filter(Boolean);
             const newQuotes= serverQuotes.filter(serverQuote =>
@@ -190,9 +191,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 3000);
             }
 
-        })
-        .catch(error => console.error('Error fetching from server:', error));
-    
+        }catch(error) {
+
+        console.error('Error fetching from server:', error);
+    }
       }
 
       // Event listeners
