@@ -3,22 +3,64 @@ document.addEventListener('DOMContentLoaded', () => {
     const newQuoteButton = document.getElementById('newQuote');
     const importFile = document.getElementById('importFile');
     const exportButton = document.getElementById('exportButton');
+    const categoryFilter = document.getElementById('categoryFilter');
 
     let quotes = JSON.parse(localStorage.getItem('quotes')) || [
         { text: 'The greatest player of all time is Cristiano Ronaldo', category: 'Football' },
         { text: 'Jesus is the way, the truth and the life.', category: 'Bible'}
     ];
 
+    let categories = [...new Set(quotes.map(quote => quote.category))];
+    let selectCategory = localStorage.getItem('selectedCategory') || 'all';
+    
     console.log('Initial quotes:, quotes');
+    console.log('Initial categories:', categories);
+
+    function populateCategoryFilter() {
+        categoryFilter.innerHTML = '<option value= "all">All Categories</option>';
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            if (category === selectedCategory) {
+                option.selected = true;
+            }
+            categoryFilter.appendChild(option);
+        });
+        console.log('Category filter populated with categories:',categories);
+    }
+
+    function filterQuotes() {
+        selectedCategory = categoryFilter.value;
+        localStorage.setItem('selected Category:', selectedCategory);
+        console.log('selectedCategory:', selectedCategory);
+        const filterdQuotes = selectedCategory === 'all' ? quotes : quotes.filter(quote => quote.category === selectedCategory);
+        console.log('Filtered quotes:', filteredQuotes);
+        if(filteredQuotes.length > 0) {
+            const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
+            const quote = filteredQuotes[randomIndex];
+            quoteDisplay.innerHTML = `"${quote.text}" - ${quote.category}`;
+            sessionStorage.setItem('lastViewedQuote', Json.stringify(quote));
+            console.log('Displayed filtered quote:', quote);
+        } else {
+            quoteDisplay.innerHTML = 'No quotes available for the selected category.';
+
+        }
+
+    }
 
     function showRandomQuote() {
-        const randomIndex = Math.floor(Math.random() * quotes.length);
-        const quote = quotes[randomIndex];
+        const filteredQuotes = selectedCategory === 'all' ? quotes : quotes.filter(quote => quote.category === selectedCategory);
+        if (filteredQuotes.length > 0) {
+        const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
+        const quote = filteredQuotes[randomIndex];
         console.log(`Displaying quote: "${quote.text}" - ${quote.category}`);
         quoteDisplay.innerHTML = `"${quote.text}" - ${quote.category}`;
         sessionStorage.setItem('lastViewedQuote', JSON.stringify(quote));
-        console.log('last viewed quote saved to session storage:', quote);
+        console.log('Displayed quote:', quote);
+    } else{
+        quoteDisplay.innerHTML = 'No quotes availablefor the selected category.';
     }
+}
 
     function createAddQuoteForm() {
         const addQuoteForm = document.getElementById('addQuoteForm');
@@ -59,6 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('newQuoteText').value = '';
             document.getElementById('newQuoteCategory').value = '';
             alert('New quote added successfully!');
+            if (!categories.includes(newQuoteCategory)) {
+                populateCategoryFilter();
+            }
         } else {
             console.log('Failed to add quote: Missing text or category');
             alert('Please enter both a quote and a category.');
@@ -89,6 +134,9 @@ document.addEventListener('DOMContentLoaded', () => {
           console.log('Updated quotes saved to local storage:', quotes);
           saveQuotes();
           alert('Quotes imported successfully!');
+          categories = [...new Set(quotes.map(quote => quote.category))];
+          populateCategoryFilter();
+          filterQuotes();
         };
         fileReader.readAsText(event.target.files[0]);
       }
@@ -100,6 +148,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addQuote = addQuote;
 
     // Initialize the add quote form
+    populateCategoryFilter();
+    filterQuotes();
+
+
     createAddQuoteForm();
     const lastViewedQuote = JSON.parse(sessionStorage.getItem('lastViewedQuote'));
     if (lastViewedQuote) {
