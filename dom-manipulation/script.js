@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const importFile = document.getElementById('importFile');
     const exportButton = document.getElementById('exportButton');
     const categoryFilter = document.getElementById('categoryFilter');
+    const notification = document.getElementById('notification');
 
     let quotes = JSON.parse(localStorage.getItem('quotes')) || [
         { text: 'The greatest player of all time is Cristiano Ronaldo', category: 'Football' },
@@ -21,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         categories.forEach(category => {
             const option = document.createElement('option');
             option.value = category;
+            option.textContent = category;
             if (category === selectedCategory) {
                 option.selected = true;
             }
@@ -102,8 +104,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('newQuoteCategory').value = '';
             alert('New quote added successfully!');
             if (!categories.includes(newQuoteCategory)) {
+                categories.push(newQuoteCategory);
                 populateCategories();
             }
+            syncWithServer();
         } else {
             console.log('Failed to add quote: Missing text or category');
             alert('Please enter both a quote and a category.');
@@ -136,9 +140,59 @@ document.addEventListener('DOMContentLoaded', () => {
           alert('Quotes imported successfully!');
           categories = [...new Set(quotes.map(quote => quote.category))];
           populateCategories();
+          syncWithServer();
           filterQuotes();
         };
         fileReader.readAsText(event.target.files[0]);
+      }
+
+      function syncWithServer() {
+        fetch('https://jsonplaceholder.typicode.com/posts', {
+            method: 'POST',
+            body: JSON.stringify(quotes),
+            headers: {
+                'content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Quotes synced with server:', data);
+            notification.textContent = 'Quotes synced with server!';
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        })
+        .catch(error => console.error('Error syncing with server:',error));
+      }
+
+      function fetchFromServer() {
+        fetch('https://jsonplaceholder.typicode.com/posts')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Fetched quotes from server:', data);
+            const serverQuotes = data.map(item => item.body).filter(Boolean);
+            const newQuotes= serverQuotes.filter(serverQuote =>
+                !quotes.some(localQuote => localQuote.text === serverQuote.text && localQuote.category === serverQuote.category)   
+            );
+
+            if (newQuotes.length > 0) {
+                quotes.push(...newQuotes);
+                localStorage.setItem('quotes', JSON.stringify(quotes));
+                console.log('updated quotes from server saved to local storage:', quotes);
+                categories = [...new Set(quotes.map(quote => quote.category))];
+                populateCategories();
+                filter();
+                notification.textContent = 'Quotes updated from server!';
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+
+        })
+        .catch(error => console.error('Error fetching from server:', error));
+    
       }
 
       // Event listeners
@@ -162,4 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Display a random quote initially
     showRandomQuote();
     }
+
+    syncWithServer();
+    setInterval(fetchFromServer, 10000);  // Fetch new quotes every 10 seconds
+
 });
