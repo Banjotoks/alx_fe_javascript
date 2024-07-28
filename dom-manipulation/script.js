@@ -148,42 +148,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
       async function syncQuotes() {
         try {
-            // Fetch existing quotes from the server
-            const response = await fetch('https://jsonplaceholder.typicode.com/posts');
-            const serverQuotes = await response.json();
-            console.log('Fetched quotes from server:', serverQuotes);
-
-            // Map server data to match local quote structure
-            const mappedServerQuotes = serverQuotes.map(item => ({ text: item.title, category: 'Server' }));
-
-            // Merge quotes, prioritizing server data
-            const mergedQuotes = [...mappedServerQuotes];
-            quotes.forEach(localQuote => {
-                if (!mappedServerQuotes.some(serverQuote => serverQuote.text === localQuote.text && serverQuote.category === localQuote.category)) {
-                    mergedQuotes.push(localQuote);
-                }
-            });
-
-            quotes = mergedQuotes;
-            localStorage.setItem('quotes', JSON.stringify(quotes));
-            console.log('Merged quotes saved to local storage:', quotes);
-
-            // Notify user of update
+            const response  = await fetch('https://jsonplaceholder.typicode.com/posts', {
+    
+            method: 'POST',
+            body: JSON.stringify(quotes),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+            console.log('Quotes synced with server:', data);
             notification.textContent = 'Quotes synced with server!';
             notification.style.display = 'block';
             setTimeout(() => {
                 notification.style.display = 'none';
             }, 3000);
-
-            // Update categories and filtered quotes
-            categories = [...new Set(quotes.map(quote => quote.category))];
-            populateCategories();
-            filterQuotes();
-
-        } catch (error) {
-            console.error('Error syncing with server:', error);
+        } catch(error) {
+            console.error('Error syncing with server:',error);
         }
+      }
+
+      async function fetchQuotesFromServer() {
+        try{
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts')
+        const data = await response.json();
+            console.log('Fetched quotes from server:', data);
+            const serverQuotes = data.map(item => item.body).filter(Boolean);
+            const newQuotes= serverQuotes.filter(serverQuote =>
+                !quotes.some(localQuote => localQuote.text === serverQuote.text && localQuote.category === serverQuote.category)   
+            );
+
+            if (newQuotes.length > 0) {
+                quotes.push(...newQuotes);
+                localStorage.setItem('quotes', JSON.stringify(quotes));
+                console.log('updated quotes from server saved to local storage:', quotes);
+                categories = [...new Set(quotes.map(quote => quote.category))];
+                populateCategories();
+                filter();
+                notification.textContent = 'Quotes updated from server!';
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+
+        }catch(error) {
+            
+        console.error('Error fetching from server:', error);
     }
+}
+      
 
       // Event listeners
     newQuoteButton.addEventListener('click', showRandomQuote);
